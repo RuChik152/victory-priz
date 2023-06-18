@@ -1,5 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
+import { config } from 'dotenv';
 import * as process from 'process';
+config();
 
 const CONNECTION: TypeOrmModuleOptions = {
   type: 'mysql',
@@ -8,8 +10,6 @@ const CONNECTION: TypeOrmModuleOptions = {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  entities: [],
-  synchronize: false,
 };
 
 export default CONNECTION;
