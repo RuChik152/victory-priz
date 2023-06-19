@@ -7,19 +7,13 @@ export class User {
   id: number;
 
   @Column()
-  first_name: string;
+  email: string;
 
-  @Column()
-  last_name: string;
-
-  @Column()
-  age: number;
+  @Column({ default: 'user name' })
+  name: string;
 
   @Column()
   pass: string;
-
-  @Column()
-  email: string;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

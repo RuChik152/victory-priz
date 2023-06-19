@@ -1,7 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
 export class CreateAuthDto {
-
   @IsString()
   email: string;
 
@@ -11,4 +10,8 @@ export class CreateAuthDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsString()
+  @IsOptional()
+  age?: number;
 }

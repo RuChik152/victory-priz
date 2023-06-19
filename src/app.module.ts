@@ -7,6 +7,8 @@ import { UserModule } from './user/user.module';
 import { TokenModule } from './token/token.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import CONNECTION from './db.connection';
+import { DataSource } from 'typeorm';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -16,12 +18,16 @@ import CONNECTION from './db.connection';
     TokenModule,
     TypeOrmModule.forRoot({
       ...CONNECTION,
-      entities: [],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/migrations/{.ts,.js}'],
       synchronize: false,
       autoLoadEntities: true,
     }),
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
