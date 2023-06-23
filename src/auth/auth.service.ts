@@ -31,7 +31,7 @@ export class AuthService {
         attachments: [],
         context: {
           user_name: dataUser.name ? dataUser.name : 'Заказчик',
-          confirm_url: `http://localhost:3000/auth/confirmation?email=${email}&id=${confirm_id}`,
+          confirm_url: `${process.env.HOST}/auth/confirmation?email=${email}&id=${confirm_id}`,
         },
       });
       console.log(
