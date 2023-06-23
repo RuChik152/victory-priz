@@ -19,16 +19,19 @@ export class AuthService {
   async create(dataUser: CreateAuthDto) {
     try {
       const user = await this.userRepository.create(dataUser);
-      const { email, id, name } = await this.userRepository.save(user);
+
+      const { email, id, name, confirm_id } = await this.userRepository.save(
+        user,
+      );
 
       const sendEmail = await this.mailerService.sendMail({
-        to: dataUser.email,
+        to: email,
         subject: 'Confirmation account',
         template: './template_confirmation_user',
         attachments: [],
         context: {
           user_name: dataUser.name ? dataUser.name : 'Заказчик',
-          confirm_url: 'http://localhost:3000',
+          confirm_url: `http://localhost:3000/auth/confirmation?email=${email}&id=${confirm_id}`,
         },
       });
       console.log(
@@ -54,34 +57,56 @@ export class AuthService {
         const pass = await bcrypt.compare(dataUser.pass, user.pass);
         if (pass) {
           if (user.confirmation) {
-            const refreshToken = jwt.sign(
-              { email: user.email, pass: user.pass },
+            const refresh_Token = jwt.sign(
+              { email: user.email },
               process.env.JWT_CONSTANT_REFRESH_TOKEN,
               { expiresIn: process.env.JWT_LIFETIME_REFRESH_TOKEN },
             );
-            const accessToken = jwt.sign(
-              { email: user.email, pass: user.pass },
+            const access_Token = jwt.sign(
+              {
+                email: user.email,
+                refreshToken: refresh_Token,
+              },
               process.env.JWT_CONSTANT_ACCESS_TOKEN,
               { expiresIn: process.env.JWT_LIFETIME_ACCESS_TOKEN },
             );
 
-            user.refreshToken = refreshToken;
-            user.accessToken = accessToken;
+            user.refreshToken = refresh_Token;
+            user.accessToken = access_Token;
             user.auth_status = true;
             await this.userRepository.save(user);
 
-            return user;
+            return { status: 200, access_Token };
           } else {
             return { status: 403, msg: 'Account not confirmed' };
           }
         } else {
-          return { status: 403, msg: 'Password or email is not correct' };
+          return { status: 400, msg: 'Password or email is not correct' };
         }
       } else {
-        return { status: 403, msg: 'Account not found' };
+        return { status: 404, msg: 'Account not found' };
       }
     } catch (err) {
       console.log(`[${new Date().toJSON()}] ERROR AuthService Create: `, err);
+      throw err;
+    }
+  }
+
+  async confirm(email: string, id: string) {
+    try {
+      const user = await this.userRepository.findOneOrFail({
+        where: {
+          email: email,
+        },
+      });
+
+      if (user.confirm_id === id) {
+        user.confirmation = true;
+        const { email, confirmation } = await this.userRepository.save(user);
+        return { status: 200, email, confirmation };
+      }
+    } catch (err) {
+      console.log(`[${new Date().toJSON()}] ERROR AuthService Confirm: `, err);
       throw err;
     }
   }

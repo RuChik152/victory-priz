@@ -1,6 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { Request, Response, NextFunction, response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -19,13 +20,39 @@ export class AuthController {
   }
 
   @Post('/signin')
-  async authUser(@Body() dataBody: CreateAuthDto) {
+  async authUser(@Body() dataBody: CreateAuthDto, @Res() res: Response) {
     try {
-      return await this.authService.auth(dataBody);
-    } catch (error) {
+      const user = await this.authService.auth(dataBody);
+      switch (user.status) {
+        case 404:
+        case 403:
+        case 400:
+          res.status(user.status).send({ msg: user.msg });
+          break;
+        case 200:
+          res.status(user.status).send({ accessToken: user.access_Token });
+          break;
+        default:
+          res.status(500).send({ msg: 'an unhandled exception' });
+          break;
+      }
+    } catch (err) {
       console.log(
         `[${new Date().toJSON()}] ERROR AuthController AuthUser: `,
-        error,
+        err,
+      );
+    }
+  }
+
+  @Get('confirmation')
+  async confirmUser(@Query() query: { email: string; id: string }) {
+    console.log('QUERY: ', query);
+    try {
+      return await this.authService.confirm(query.email, query.id);
+    } catch (err) {
+      console.log(
+        `[${new Date().toJSON()}] ERROR AuthController ConfirmUser: `,
+        err,
       );
     }
   }

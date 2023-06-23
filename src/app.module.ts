@@ -20,7 +20,7 @@ import { OrderModule } from './order/order.module';
       ...CONNECTION,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/migrations/{.ts,.js}'],
-      synchronize: false,
+      synchronize: false, // on production false
       autoLoadEntities: true,
     }),
     OrderModule,

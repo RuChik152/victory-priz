@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Order } from './order.entity';
 import * as bcrypt from 'bcrypt';
+import * as uuid from 'uuid';
 
 @Entity()
 export class User {
@@ -14,6 +15,11 @@ export class User {
   async hashPassword() {
     const hash = await bcrypt.hash(this.pass, 10);
     this.pass = hash;
+  }
+
+  @BeforeInsert()
+  async createConfirmId() {
+    this.confirm_id = uuid.v4();
   }
 
   @PrimaryGeneratedColumn()
@@ -34,10 +40,13 @@ export class User {
   @Column({ default: false })
   confirmation: boolean;
 
-  @Column({ default: '' })
+  @Column()
+  confirm_id: string;
+
+  @Column({ type: 'text' })
   accessToken: string;
 
-  @Column({ default: '' })
+  @Column({ type: 'text' })
   refreshToken: string;
 
   @OneToMany(() => Order, (order) => order.user)

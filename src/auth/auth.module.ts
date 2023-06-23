@@ -7,6 +7,7 @@ import { User } from '../user/entities/user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { resolve } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { AuthMiddleware } from './auth.middleware';
 
 @Module({
   imports: [
@@ -40,6 +41,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply().forRoutes(AuthController);
+    consumer.apply(AuthMiddleware).forRoutes(AuthController);
   }
 }
