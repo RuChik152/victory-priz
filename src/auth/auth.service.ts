@@ -9,6 +9,14 @@ import * as jwt from 'jsonwebtoken';
 import * as process from 'process';
 import { MailerService } from '@nestjs-modules/mailer';
 
+type NewUserType = {
+  email: string;
+  pass: string;
+  accessToken: string;
+  refreshToken: string;
+  confirm_id: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,7 +26,18 @@ export class AuthService {
   ) {}
   async create(dataUser: CreateAuthDto) {
     try {
-      const user = await this.userRepository.create(dataUser);
+      const createUser: NewUserType = Object.assign(
+        {},
+        {
+          email: dataUser.email,
+          pass: dataUser.pass,
+          accessToken: '',
+          refreshToken: '',
+          confirm_id: '',
+        },
+      );
+
+      const user = await this.userRepository.create(createUser);
 
       const { email, id, name, confirm_id } = await this.userRepository.save(
         user,
@@ -36,7 +55,7 @@ export class AuthService {
       });
       console.log(
         `[${new Date().toJSON()}] SEND EMAIL from : ${dataUser.email}: `,
-        sendEmail.response,
+        sendEmail,
       );
       return { email, id, name };
     } catch (err) {

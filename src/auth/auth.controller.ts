@@ -2,12 +2,23 @@ import { Controller, Post, Body, Get, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Request, Response, NextFunction, response } from 'express';
+import { ApiResponse } from '@nestjs/swagger';
+import * as process from 'process';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
+  @ApiResponse({
+    status: 200,
+    description: 'Request completed successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'The password must contain at least 10 characters',
+  })
+  @ApiResponse({ status: 500, description: 'Unhandled exception' })
   async creatUser(@Body() dataBody: CreateAuthDto) {
     try {
       return await this.authService.create(dataBody);

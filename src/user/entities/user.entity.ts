@@ -40,7 +40,7 @@ export class User {
   @Column({ default: false })
   confirmation: boolean;
 
-  @Column()
+  @Column({ default: '' })
   confirm_id: string;
 
   @Column({ type: 'text' })
