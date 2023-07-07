@@ -94,8 +94,14 @@ export class AuthService {
             user.accessToken = access_Token;
             user.auth_status = true;
             await this.userRepository.save(user);
-
-            return { status: 200, access_Token };
+            console.log('DATA AUTH: ', user);
+            return {
+              status: 200,
+              access_Token,
+              id: user.id,
+              email: user.email,
+              name: user.name,
+            };
           } else {
             return { status: 403, msg: 'Account not confirmed' };
           }

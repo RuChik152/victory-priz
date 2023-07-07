@@ -41,7 +41,12 @@ export class AuthController {
           res.status(user.status).send({ msg: user.msg });
           break;
         case 200:
-          res.status(user.status).send({ accessToken: user.access_Token });
+          res.status(user.status).send({
+            accessToken: user.access_Token,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          });
           break;
         default:
           res.status(500).send({ msg: 'an unhandled exception' });
