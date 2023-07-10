@@ -1,12 +1,17 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { AuthController } from "./auth.controller";
-import { resolve } from "path";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "../user/entities/user.entity";
-import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
-import { AuthMiddleware } from "./auth.middleware";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { resolve } from 'path';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { AuthMiddleware } from './auth.middleware';
 
 @Module({
   imports: [

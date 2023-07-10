@@ -9,6 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import CONNECTION from './db.connection';
 import { DataSource } from 'typeorm';
 import { OrderModule } from './order/order.module';
+import { ProductsModule } from './products/products.module';
+
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { OrderModule } from './order/order.module';
       autoLoadEntities: true,
     }),
     OrderModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
