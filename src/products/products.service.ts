@@ -6,7 +6,12 @@ import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 
 type NewProductType = {
-
+  image: string;
+  art: string;
+  price: number;
+  name: string;
+  presentation_name: string;
+  description: string;
 };
 @Injectable()
 export class ProductsService {
