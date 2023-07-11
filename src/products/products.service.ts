@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
-import * as process from 'process';
+import { Injectable } from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Product } from "./entities/product.entity";
+import { Repository } from "typeorm";
+import * as process from "process";
 
 type NewProductType = {
   image: string;
@@ -113,9 +112,25 @@ export class ProductsService {
       where: {
         art: art,
       },
-
     });
 
-    const update = await this.productRepository.save({ ...product, ...data });
+    const updateDataProduct = {
+      ...data,
+      image_data: image !== undefined ? image.buffer : product.image_data,
+    };
+
+    console.log('PRODUCT: ', product);
+
+    for (const el in product) {
+      for (const value in updateDataProduct) {
+        if (el === value) {
+          product[el] = updateDataProduct[value];
+        }
+      }
+    }
+
+    console.log('PRODUCT2: ', product);
+
+    return await this.productRepository.save(product);
   }
 }

@@ -56,7 +56,7 @@ export class ProductsController {
   @Put(':art')
   @UseInterceptors(FileInterceptor('file'))
   async updateProduct(@Body() data: CreateProductDto, @UploadedFile() file, @Param('art') art: string) {
-    await this.productsService.update(data, file, art);
+    return await this.productsService.update(data, file, art);
   }
 
 
