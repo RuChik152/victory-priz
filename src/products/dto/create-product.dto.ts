@@ -4,8 +4,9 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateProductDto {
   @ApiProperty({
     description: 'ID product in database',
-    required: true,
+    required: false,
   })
+  @IsOptional()
   @IsString()
   id: string;
 

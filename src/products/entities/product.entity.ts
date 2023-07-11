@@ -22,4 +22,7 @@ export class Product {
 
   @Column({ type: 'varchar' })
   image: string;
+
+  @Column({ type: 'mediumblob' })
+  image_data: any;
 }
