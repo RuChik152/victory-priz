@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { CreateProductDto } from "./dto/create-product.dto";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Product } from "./entities/product.entity";
-import { Repository } from "typeorm";
-import * as process from "process";
+import { Injectable } from '@nestjs/common';
+import { CreateProductDto } from './dto/create-product.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Product } from './entities/product.entity';
+import { Repository } from 'typeorm';
+import * as process from 'process';
+import * as pug from 'pug';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 type NewProductType = {
   image: string;
@@ -28,24 +30,23 @@ export class ProductsService {
         art: product.art,
         price: Number(product.price),
         description: product.description,
-        image: product.image,
+        type: product.type,
+        group: product.group,
         image_data: image.buffer,
       };
 
       const prodCreate = await this.productRepository.create(prod);
 
-      const prodCreateNew = await this.productRepository.save(prodCreate);
+      const { image_data, ...data } = await this.productRepository.save(
+        prodCreate,
+      );
       return {
-        id: prodCreateNew.id,
-        name: prodCreateNew.name,
-        presentation_name: prodCreateNew.presentation_name,
-        art: prodCreateNew.art,
-        price: prodCreateNew.price,
-        description: prodCreateNew.description,
-        image: `${process.env.HOST}/products/image/${prodCreateNew.art}`,
+        status: 200,
+        data: { ...data },
       };
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      console.log(`[ ${new Date()} ], ERROR: `, error);
+      return { status: 400, data: error.sqlMessage };
     }
   }
 
@@ -64,16 +65,8 @@ export class ProductsService {
       const products = await this.productRepository.find();
       console.log(products);
 
-      for await (const value of products) {
-        arr.push({
-          id: value.id,
-          name: value.name,
-          presentation_name: value.presentation_name,
-          description: value.description,
-          art: value.art,
-          price: value.price,
-          image: `${process.env.HOST}/products/image/${value.art}`,
-        });
+      for await (const { image_data, ...data } of products) {
+        arr.push({ ...data });
       }
 
       return arr;
@@ -84,42 +77,27 @@ export class ProductsService {
 
   async getProduct(art: string) {
     try {
-      const product = await this.productRepository.findOne({
+      const { image_data, ...data } = await this.productRepository.findOne({
         where: {
           art: art,
         },
       });
-      return {
-        id: product.id,
-        name: product.name,
-        presentation_name: product.presentation_name,
-        art: product.art,
-        price: product.price,
-        description: product.description,
-        image: `${process.env.HOST}/products/image/${product.art}`,
-      };
+      return { ...data };
     } catch (err) {
       throw err;
     }
   }
 
-  async update(data: CreateProductDto, image: any, art: string) {
-    console.log('UPDATE data: ', data);
-    console.log('UPDATE image: ', image);
-    console.log('UPDATE art: ', art);
-
+  async update(data: UpdateProductDto, image: any, art: string) {
     const product = await this.productRepository.findOne({
       where: {
         art: art,
       },
     });
-
     const updateDataProduct = {
       ...data,
       image_data: image !== undefined ? image.buffer : product.image_data,
     };
-
-    console.log('PRODUCT: ', product);
 
     for (const el in product) {
       for (const value in updateDataProduct) {
@@ -129,8 +107,54 @@ export class ProductsService {
       }
     }
 
-    console.log('PRODUCT2: ', product);
+    const { image_data, ...prod } = await this.productRepository.save(product);
+    return { ...prod };
+  }
 
-    return await this.productRepository.save(product);
+  async getCups() {
+    try {
+      return await this.productRepository.findOne({
+        where: {
+          type: 'cups',
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getMedals() {
+    try {
+      return await this.productRepository.findOne({
+        where: {
+          type: 'medals',
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(art: string) {
+    try {
+      return await this.productRepository.delete({ art: art });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteArr(arr: string[]) {
+    try {
+      const list = [];
+
+      for await (const value of arr) {
+        const product = await this.productRepository.delete({ art: value });
+        list.push(product);
+      }
+
+      return list;
+    } catch (error) {
+      throw error;
+    }
   }
 }

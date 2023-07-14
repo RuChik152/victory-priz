@@ -1,15 +1,19 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
-  Post, Put,
+  Post,
+  Put,
+  Res,
   StreamableFile,
   UploadedFile,
   UploadedFiles,
-  UseInterceptors
-} from "@nestjs/common";
+  UseInterceptors,
+} from '@nestjs/common';
+import { Response } from 'express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -21,10 +25,19 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async createProduct(@Body() data: CreateProductDto, @UploadedFile() file) {
-    console.log('CONTROLLER DATA', data);
-    console.log('CONTROLLER PRODUCT', file);
-    return await this.productsService.create(data, file);
+  async createProduct(
+    @Body() data: CreateProductDto,
+    @UploadedFile() file,
+    @Res() res: Response,
+  ) {
+    try {
+      console.log('CONTROLLER DATA', data);
+      console.log('CONTROLLER PRODUCT', file);
+      const prod = await this.productsService.create(data, file);
+      res.status(prod.status).send(prod.data);
+    } catch (error) {
+      res.status(500).send(error);
+    }
   }
 
   @Get()
@@ -55,33 +68,47 @@ export class ProductsController {
 
   @Put(':art')
   @UseInterceptors(FileInterceptor('file'))
-  async updateProduct(@Body() data: CreateProductDto, @UploadedFile() file, @Param('art') art: string) {
+  async updateProduct(
+    @Body() data: UpdateProductDto,
+    @UploadedFile() file,
+    @Param('art') art: string,
+  ) {
     return await this.productsService.update(data, file, art);
   }
 
+  @Get('cups')
+  async getCups() {
+    try {
+      return await this.productsService.getCups();
+    } catch (error) {
+      throw error;
+    }
+  }
 
-  // @Post()
-  // create(@Body() createProductDto: CreateProductDto) {
-  //   return this.productsService.create(createProductDto);
-  // }
-  //
-  // @Get()
-  // findAll() {
-  //   return this.productsService.findAll();
-  // }
-  //
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.productsService.findOne(+id);
-  // }
-  //
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-  //   return this.productsService.update(+id, updateProductDto);
-  // }
-  //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.productsService.remove(+id);
-  // }
+  @Get('medals/all')
+  async getMedals() {
+    try {
+      return await this.productsService.getMedals();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete(':art')
+  async deleteProduct(@Param('art') art: string) {
+    try {
+      return await this.productsService.delete(art);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete()
+  async deleteProducts(@Body() data: string[]) {
+    try {
+      return await this.productsService.deleteArr(data);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

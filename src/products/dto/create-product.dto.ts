@@ -3,58 +3,51 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
   @ApiProperty({
-    description: 'ID product in database',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  id: string;
-
-  @ApiProperty({
     description: 'Name product',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @IsString()
   name: string;
 
   @ApiProperty({
     description: 'Presentation name product',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @IsString()
   presentation_name: string;
 
   @ApiProperty({
     description: 'The article number of this product',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @IsString()
   art: string;
 
   @ApiProperty({
     description: 'The cost of this product',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @IsNumber()
   price: number;
 
   @ApiProperty({
     description: 'Description product',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @IsString()
   description: string;
 
   @ApiProperty({
-    description: 'The link for the image',
-    required: false,
+    description: 'The type for product',
+    required: true,
   })
-  @IsOptional()
   @IsString()
-  image: string;
+  type: string;
+
+  @ApiProperty({
+    description: 'The type group for product',
+    required: true,
+  })
+  @IsString()
+  group: string;
 }
