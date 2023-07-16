@@ -1,5 +1,6 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import {IsNumber, IsObject, IsOptional, IsString} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
 
 export class CreateProductDto {
   @ApiProperty({
@@ -50,4 +51,12 @@ export class CreateProductDto {
   })
   @IsString()
   group: string;
+
+  @ApiProperty({
+    description: 'The file image for product',
+    format: 'file',
+    required: true,
+  })
+  @IsObject()
+  file: object;
 }

@@ -31,8 +31,6 @@ export class ProductsController {
     @Res() res: Response,
   ) {
     try {
-      console.log('CONTROLLER DATA', data);
-      console.log('CONTROLLER PRODUCT', file);
       const prod = await this.productsService.create(data, file);
       res.status(prod.status).send(prod.data);
     } catch (error) {
@@ -76,7 +74,7 @@ export class ProductsController {
     return await this.productsService.update(data, file, art);
   }
 
-  @Get('cups')
+  @Get('cups/all')
   async getCups() {
     try {
       return await this.productsService.getCups();

@@ -3,8 +3,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
-import * as process from 'process';
-import * as pug from 'pug';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 type NewProductType = {
@@ -113,11 +111,20 @@ export class ProductsService {
 
   async getCups() {
     try {
-      return await this.productRepository.findOne({
-        where: {
-          type: 'cups',
-        },
-      });
+      return await this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.name',
+          'product.presentation_name',
+          'product.art',
+          'product.price',
+          'product.description',
+          'product.image_link',
+          'product.type',
+          'product.group',
+        ])
+        .where({ type: 'cups' })
+        .getMany();
     } catch (error) {
       throw error;
     }
@@ -125,11 +132,20 @@ export class ProductsService {
 
   async getMedals() {
     try {
-      return await this.productRepository.findOne({
-        where: {
-          type: 'medals',
-        },
-      });
+      return await this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.name',
+          'product.presentation_name',
+          'product.art',
+          'product.price',
+          'product.description',
+          'product.image_link',
+          'product.type',
+          'product.group',
+        ])
+        .where({ type: 'medals' })
+        .getMany();
     } catch (error) {
       throw error;
     }
