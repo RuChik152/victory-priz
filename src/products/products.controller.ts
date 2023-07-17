@@ -26,11 +26,13 @@ import {
   ApiProperty,
   ApiQuery,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import * as process from 'process';
 
 export type DeleteArrProp = string[];
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
