@@ -13,11 +13,23 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Express } from 'express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { ApiImplicitFile } from '@nestjs/swagger/dist/decorators/api-implicit-file.decorator';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiProperty,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
+import * as process from 'process';
+
+export type DeleteArrProp = string[];
 
 @Controller('products')
 export class ProductsController {
@@ -25,9 +37,44 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiImplicitFile({
+    name: 'file',
+    required: true,
+    description: 'Download file for product',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Information for new product',
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Name product' },
+        presentation_name: {
+          type: 'string',
+          description: 'Presentations name product',
+        },
+        art: { type: 'string', description: 'Item number' },
+        price: { type: 'number', description: 'The cost of the goods' },
+        description: { type: 'string', description: 'description product' },
+        type: { type: 'string', description: 'Type product', example: 'cups' },
+        group: {
+          type: 'string',
+          description: 'Group product',
+          example: 'gift',
+        },
+        image_link: {
+          type: 'string',
+          description: 'Link for image product',
+          example: `${process.env.HOST}/products/image/3TAS14E485878EE33111`,
+        },
+        id: { type: 'number', description: 'ID product' },
+      },
+    },
+  })
   async createProduct(
     @Body() data: CreateProductDto,
-    @UploadedFile() file,
+    @UploadedFile() file: Express.Multer.File,
     @Res() res: Response,
   ) {
     try {
@@ -48,6 +95,35 @@ export class ProductsController {
   }
 
   @Get(':art')
+  @ApiResponse({
+    status: 200,
+    description: 'Information for new product',
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Name product' },
+        presentation_name: {
+          type: 'string',
+          description: 'Presentations name product',
+        },
+        art: { type: 'string', description: 'Item number' },
+        price: { type: 'number', description: 'The cost of the goods' },
+        description: { type: 'string', description: 'description product' },
+        type: { type: 'string', description: 'Type product', example: 'cups' },
+        group: {
+          type: 'string',
+          description: 'Group product',
+          example: 'gift',
+        },
+        image_link: {
+          type: 'string',
+          description: 'Link for image product',
+          example: `${process.env.HOST}/products/image/3TAS14E485878EE33111`,
+        },
+        id: { type: 'number', description: 'ID product' },
+      },
+    },
+  })
   async getProduct(@Param('art') art: string) {
     try {
       return await this.productsService.getProduct(art);

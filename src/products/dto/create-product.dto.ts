@@ -1,6 +1,6 @@
-import {IsNumber, IsObject, IsOptional, IsString} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiQuery } from '@nestjs/swagger';
+import { Express } from 'express';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -39,7 +39,7 @@ export class CreateProductDto {
   description: string;
 
   @ApiProperty({
-    description: 'The type for product',
+    description: 'The type for product, cups or medals',
     required: true,
   })
   @IsString()
@@ -48,15 +48,11 @@ export class CreateProductDto {
   @ApiProperty({
     description: 'The type group for product',
     required: true,
+    example: 'cups',
   })
   @IsString()
   group: string;
 
-  @ApiProperty({
-    description: 'The file image for product',
-    format: 'file',
-    required: true,
-  })
-  @IsObject()
-  file: object;
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: any;
 }
