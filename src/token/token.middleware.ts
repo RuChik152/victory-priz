@@ -16,7 +16,11 @@ export function TokenMiddleware(
   next: NextFunction,
 ) {
   console.log('TOKEN MIDDLE WARE: ', req.body);
-  jwt.verify( req.body.accessToken, process.env.JWT_CONSTANT_ACCESS_TOKEN, { complete: false }, (err, decoded: DecodeType) => {
+  jwt.verify(
+    req.body.accessToken,
+    process.env.JWT_CONSTANT_ACCESS_TOKEN,
+    { complete: false },
+    (err, decoded: DecodeType) => {
       if (err) {
         console.log('ERROR CHECK ACCESS TOKEN: ', err);
 
@@ -26,7 +30,10 @@ export function TokenMiddleware(
         const { refreshToken } = jwt.decode(req.body.accessToken);
         console.log('DECODE TOKEN: ', refreshToken);
         if (typeof refreshToken === 'string') {
-          jwt.verify( refreshToken, process.env.JWT_CONSTANT_REFRESH_TOKEN, (err, decoded: DecodeType) => {
+          jwt.verify(
+            refreshToken,
+            process.env.JWT_CONSTANT_REFRESH_TOKEN,
+            (err, decoded: DecodeType) => {
               if (err) {
                 console.log('ERROR REFRESH TOKEN: ', err);
                 res.status(403).send('Access denied');

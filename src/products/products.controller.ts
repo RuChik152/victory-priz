@@ -10,24 +10,15 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
-  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { Response, Express } from 'express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiImplicitFile } from '@nestjs/swagger/dist/decorators/api-implicit-file.decorator';
-import {
-  ApiBody,
-  ApiConsumes,
-  ApiParam,
-  ApiProperty,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as process from 'process';
 
 export type DeleteArrProp = string[];
@@ -59,11 +50,15 @@ export class ProductsController {
         art: { type: 'string', description: 'Item number' },
         price: { type: 'number', description: 'The cost of the goods' },
         description: { type: 'string', description: 'description product' },
-        type: { type: 'string', description: 'Type product', example: 'cups' },
+        type: {
+          type: 'string',
+          description: 'Type product',
+          example: 'standard',
+        },
         group: {
           type: 'string',
           description: 'Group product',
-          example: 'gift',
+          example: 'cups',
         },
         image_link: {
           type: 'string',
@@ -71,6 +66,14 @@ export class ProductsController {
           example: `${process.env.HOST}/products/image/3TAS14E485878EE33111`,
         },
         id: { type: 'number', description: 'ID product' },
+        sales: {
+          type: 'boolean',
+          description: 'State for sales',
+        },
+        sales_percent: {
+          type: 'number',
+          description: 'Percent for sales',
+        },
       },
     },
   })
@@ -149,6 +152,7 @@ export class ProductsController {
     @UploadedFile() file,
     @Param('art') art: string,
   ) {
+    console.log('TRANSFORM: ', data);
     return await this.productsService.update(data, file, art);
   }
 

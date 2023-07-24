@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateProductDto } from './create-product.dto';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
   @ApiProperty({
@@ -10,4 +10,15 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
   @IsString()
   id: string;
+
+  @IsString()
+  @ApiProperty({ description: 'Sales for sales', required: false })
+  sales: string;
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'Percent for sales',
+    required: false,
+  })
+  sales_percent: number;
 }

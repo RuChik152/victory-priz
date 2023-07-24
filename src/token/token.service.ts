@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTokenDto } from './dto/create-token.dto';
-import { UpdateTokenDto } from './dto/update-token.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';

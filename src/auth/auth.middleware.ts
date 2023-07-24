@@ -1,12 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { authChecker } from './lib/authChecker';
-import { ApiResponse } from '@nestjs/swagger';
-
-interface RequestAuthProps {
-  email: string;
-  pass: string;
-}
-
 export function AuthMiddleware(
   req: Request,
   res: Response,

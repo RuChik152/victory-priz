@@ -15,13 +15,9 @@ export class UserService {
     private ordersRepository: Repository<Order>,
   ) {}
 
-
-
   async getAll() {
     return this.usersRepository.find();
   }
-
-
 
   async get(id: number): Promise<User> {
     try {

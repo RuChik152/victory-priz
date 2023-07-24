@@ -37,4 +37,10 @@ export class Product {
 
   @Column({ type: 'varchar' })
   group: string;
+
+  @Column({ default: 'no-sales' })
+  sales: string;
+
+  @Column({ type: 'int', default: 0 })
+  sales_percent: number;
 }

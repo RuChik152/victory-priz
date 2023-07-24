@@ -12,6 +12,7 @@ import { User } from '../user/entities/user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AuthMiddleware } from './auth.middleware';
+import * as process from 'process';
 
 @Module({
   imports: [
@@ -19,16 +20,16 @@ import { AuthMiddleware } from './auth.middleware';
     MailerModule.forRootAsync({
       useFactory: async () => ({
         transport: {
-          host: 'smtp.yandex.ru',
-          port: 465,
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT),
           secure: true,
           auth: {
-            user: 'web-studioi@yandex.ru',
-            pass: 'bdgqaqxthzpsuuom',
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
           },
         },
         defaults: {
-          from: `web-studioi@yandex.ru`,
+          from: process.env.SMTP_USER,
         },
         template: {
           dir: resolve(__dirname, 'templates'),

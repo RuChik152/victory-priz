@@ -1,6 +1,5 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 import CONNECTION from './db.connection';
-import { User } from './user/entities/user.entity';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore

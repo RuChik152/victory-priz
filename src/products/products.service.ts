@@ -4,15 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { UpdateProductDto } from './dto/update-product.dto';
-
-type NewProductType = {
-  image: string;
-  art: string;
-  price: number;
-  name: string;
-  presentation_name: string;
-  description: string;
-};
 @Injectable()
 export class ProductsService {
   constructor(
@@ -23,13 +14,7 @@ export class ProductsService {
   async create(product: CreateProductDto, image: any) {
     try {
       const prod = {
-        name: product.name,
-        presentation_name: product.presentation_name,
-        art: product.art,
-        price: Number(product.price),
-        description: product.description,
-        type: product.type,
-        group: product.group,
+        ...product,
         image_data: image.buffer,
       };
 
@@ -105,7 +90,13 @@ export class ProductsService {
       }
     }
 
-    const { image_data, ...prod } = await this.productRepository.save(product);
+    await this.productRepository.save(product);
+
+    const { image_data, ...prod } = await this.productRepository.findOne({
+      where: {
+        art: art,
+      },
+    });
     return { ...prod };
   }
 
@@ -123,7 +114,7 @@ export class ProductsService {
           'product.type',
           'product.group',
         ])
-        .where({ type: 'cups' })
+        .where({ group: 'cups' })
         .getMany();
     } catch (error) {
       throw error;
@@ -144,7 +135,7 @@ export class ProductsService {
           'product.type',
           'product.group',
         ])
-        .where({ type: 'medals' })
+        .where({ group: 'medals' })
         .getMany();
     } catch (error) {
       throw error;

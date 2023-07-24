@@ -11,7 +11,6 @@ import { DataSource } from 'typeorm';
 import { OrderModule } from './order/order.module';
 import { ProductsModule } from './products/products.module';
 
-
 @Module({
   imports: [
     AuthModule,
