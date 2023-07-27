@@ -67,8 +67,8 @@ export class ProductsController {
         },
         id: { type: 'number', description: 'ID product' },
         sales: {
-          type: 'boolean',
-          description: 'State for sales',
+          type: 'string',
+          description: 'State for sales, Example: no-sales or sales',
         },
         sales_percent: {
           type: 'number',
