@@ -10,15 +10,4 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
   @IsString()
   id: string;
-
-  @IsString()
-  @ApiProperty({ description: 'Sales for sales', required: false })
-  sales: string;
-
-  @IsNumber()
-  @ApiProperty({
-    description: 'Percent for sales',
-    required: false,
-  })
-  sales_percent: number;
 }
