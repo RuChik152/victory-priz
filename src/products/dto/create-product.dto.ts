@@ -56,7 +56,7 @@ export class CreateProductDto {
   file: any;
 
   @ApiProperty({
-    description: 'Sales for sales',
+    description: 'Sales for sales. Example: no-sales',
     example: 'no-sales',
     required: false,
     default: 'no-sales',
@@ -68,7 +68,7 @@ export class CreateProductDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({
-    description: 'Percent for sales',
+    description: 'Percent for sales. ',
     required: false,
     example: 0,
     default: 0,
