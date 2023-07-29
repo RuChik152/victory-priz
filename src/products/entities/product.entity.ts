@@ -1,5 +1,13 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from 'typeorm';
 import * as process from 'process';
+import { Group } from './group.entity';
 
 @Entity()
 export class Product {
@@ -30,17 +38,18 @@ export class Product {
   image_data: any;
 
   @Column({ type: 'varchar' })
-  image_link: any;
+  image_link: string;
 
   @Column({ type: 'varchar' })
   type: string;
-
-  @Column({ type: 'varchar' })
-  group: string;
 
   @Column({ default: 'no-sales' })
   sales: string;
 
   @Column({ type: 'int', default: 0 })
   sales_percent: number;
+
+  @OneToOne(() => Group)
+  @JoinColumn()
+  group: Group;
 }

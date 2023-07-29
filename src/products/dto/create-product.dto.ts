@@ -45,12 +45,11 @@ export class CreateProductDto {
   type: string;
 
   @ApiProperty({
-    description: 'The type group for product, medals, cups, etc.',
+    description: 'The id group',
     required: true,
-    example: 'cups',
   })
   @IsString()
-  group: string;
+  group_id: string;
 
   @ApiProperty({ type: 'string', format: 'binary' })
   file: any;

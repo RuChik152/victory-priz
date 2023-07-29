@@ -191,4 +191,40 @@ export class ProductsController {
       throw error;
     }
   }
+
+  @Post('group')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  async createGroup(@Body('group') group: string) {
+    try {
+      console.log('TEST', group);
+      return await this.productsService.createGroup(group);
+    } catch (err) {
+      throw err;
+      return err;
+    }
+  }
+
+  @Get('group/:id')
+  async findGroup(@Param('id') id: string) {
+    try {
+      return await this.productsService.findGroup(id);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('type')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  async createType(@Body() data: { group_id: string; type_name: string }) {
+    try {
+      return await this.productsService.createType(
+        data.group_id,
+        data.type_name,
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
 }

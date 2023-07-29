@@ -4,23 +4,35 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Group } from './entities/group.entity';
+import { Type } from './entities/type.entity';
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
+    @InjectRepository(Type)
+    private typeRepository: Repository<Type>,
   ) {}
 
   async create(product: CreateProductDto, image: any) {
     try {
+      const { group_id, ...product_data } = product;
+      const grp = await this.findGroup(group_id);
       const prod = {
-        ...product,
+        ...product_data,
+        group: grp,
         image_data: image.buffer,
       };
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const prodCreate = await this.productRepository.create(prod);
 
-      const { image_data, ...data } = await this.productRepository.save(
+      //TODO
+      const { image_data, ...data }: any = await this.productRepository.save(
         prodCreate,
       );
       return {
@@ -162,6 +174,41 @@ export class ProductsService {
       return list;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async createGroup(name: string) {
+    try {
+      const group = await this.groupRepository.create({ group_name: name });
+      const save_group = await this.groupRepository.save(group);
+      console.log('CREATE GROUP: ', save_group);
+      return save_group;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findGroup(id: string) {
+    try {
+      return await this.groupRepository.findOneByOrFail({
+        id: id,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createType(group_id: string, name: string) {
+    try {
+      const grp = await this.groupRepository.findOneByOrFail({
+        id: group_id,
+      });
+
+      const type = await this.typeRepository.create({ type_name: name, group:grp });
+
+      return await this.typeRepository.save(type);
+    } catch (err) {
+      throw err;
     }
   }
 }
