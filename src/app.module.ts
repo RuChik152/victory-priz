@@ -10,6 +10,10 @@ import CONNECTION from './db.connection';
 import { DataSource } from 'typeorm';
 import { OrderModule } from './order/order.module';
 import { ProductsModule } from './products/products.module';
+import { GroupModule } from './group/group.module';
+import { TypeModule } from './type/type.module';
+
+
 
 @Module({
   imports: [
@@ -26,6 +30,8 @@ import { ProductsModule } from './products/products.module';
     }),
     OrderModule,
     ProductsModule,
+    GroupModule,
+    TypeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

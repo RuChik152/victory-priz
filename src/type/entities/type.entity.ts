@@ -2,20 +2,20 @@ import {
   BeforeInsert,
   Column,
   Entity, Generated,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as process from 'process';
-import { Type } from './type.entity';
+import { Group } from '../../group/entities/group.entity';
 
 @Entity()
-export class Group {
+export class Type {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar' })
-  group_name: string;
+  type_name: string;
 
-  @OneToMany(() => Type, (type) => type.group)
-  types: Type[];
+  @ManyToOne(() => Group, (group) => group.types)
+  group: Group;
 }

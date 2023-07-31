@@ -7,7 +7,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 import * as process from 'process';
-import { Group } from './group.entity';
+import { Group } from '../../group/entities/group.entity';
+import { Type } from '../../type/entities/type.entity';
 
 @Entity()
 export class Product {
@@ -21,6 +22,9 @@ export class Product {
 
   @Column({ type: 'varchar' })
   name: string;
+
+  @Column({ type: 'varchar' })
+  tag: string;
 
   @Column({ type: 'varchar' })
   presentation_name: string;
@@ -40,9 +44,6 @@ export class Product {
   @Column({ type: 'varchar' })
   image_link: string;
 
-  @Column({ type: 'varchar' })
-  type: string;
-
   @Column({ default: 'no-sales' })
   sales: string;
 
@@ -52,4 +53,8 @@ export class Product {
   @OneToOne(() => Group)
   @JoinColumn()
   group: Group;
+
+  @OneToOne(() => Type)
+  @JoinColumn()
+  type: Type;
 }

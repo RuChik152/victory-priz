@@ -1,4 +1,4 @@
-import { Group } from '../entities/group.entity';
+import { Group } from '../../group/entities/group.entity';
 
 export interface ProductTypes {
   id: number;

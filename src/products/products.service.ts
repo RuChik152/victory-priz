@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Group } from './entities/group.entity';
-import { Type } from './entities/type.entity';
+import { Group } from '../group/entities/group.entity';
+import { Type } from '../type/entities/type.entity';
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -19,11 +20,13 @@ export class ProductsService {
 
   async create(product: CreateProductDto, image: any) {
     try {
-      const { group_id, ...product_data } = product;
+      const { group_id, type_id, ...product_data } = product;
       const grp = await this.findGroup(group_id);
+      const typ = await this.findType(type_id);
       const prod = {
         ...product_data,
         group: grp,
+        type: typ,
         image_data: image.buffer,
       };
 
@@ -177,36 +180,27 @@ export class ProductsService {
     }
   }
 
-  async createGroup(name: string) {
-    try {
-      const group = await this.groupRepository.create({ group_name: name });
-      const save_group = await this.groupRepository.save(group);
-      console.log('CREATE GROUP: ', save_group);
-      return save_group;
-    } catch (err) {
-      throw err;
-    }
-  }
-
   async findGroup(id: string) {
     try {
-      return await this.groupRepository.findOneByOrFail({
-        id: id,
-      });
+      return await this.groupRepository
+        .createQueryBuilder('group')
+        .select(['group.id', 'group.group_name'])
+        .where('group.id = :id', { id: id })
+        .leftJoinAndSelect('group.types', 'type')
+        .getOne();
     } catch (err) {
       throw err;
     }
   }
 
-  async createType(group_id: string, name: string) {
+  async findType(id: string) {
     try {
-      const grp = await this.groupRepository.findOneByOrFail({
-        id: group_id,
-      });
-
-      const type = await this.typeRepository.create({ type_name: name, group:grp });
-
-      return await this.typeRepository.save(type);
+      return await this.typeRepository
+        .createQueryBuilder('type')
+        .select(['type.type_name', 'type.id'])
+        .where('type.id = :id', { id: id })
+        .leftJoinAndSelect('type.group', 'group')
+        .getOne();
     } catch (err) {
       throw err;
     }

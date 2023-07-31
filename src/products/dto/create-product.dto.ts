@@ -42,7 +42,7 @@ export class CreateProductDto {
     required: true,
   })
   @IsString()
-  type: string;
+  type_id: string;
 
   @ApiProperty({
     description: 'The id group',
