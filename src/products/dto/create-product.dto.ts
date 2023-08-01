@@ -44,12 +44,12 @@ export class CreateProductDto {
   @IsString()
   type_id: string;
 
-  @ApiProperty({
-    description: 'The id group',
-    required: true,
-  })
-  @IsString()
-  group_id: string;
+  // @ApiProperty({
+  //   description: 'The id group',
+  //   required: true,
+  // })
+  // @IsString()
+  // group_id: string;
 
   @ApiProperty({ type: 'string', format: 'binary' })
   file: any;

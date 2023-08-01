@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { ProductsMiddleware } from './products.middleware';
 import { Group } from '../group/entities/group.entity';
-import {Type} from "../type/entities/type.entity";
+import { Type } from '../type/entities/type.entity';
+import { TypeModule } from '../type/type.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Group, Type])],
+  imports: [TypeModule, TypeOrmModule.forFeature([Product, Group, Type])],
   controllers: [ProductsController],
   providers: [ProductsService],
 })

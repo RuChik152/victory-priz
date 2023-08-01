@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
@@ -6,6 +6,9 @@ import { Repository } from 'typeorm';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Group } from '../group/entities/group.entity';
 import { Type } from '../type/entities/type.entity';
+import { rethrow } from '@nestjs/core/helpers/rethrow';
+import { TypeModule } from '../type/type.module';
+import { TypeService } from '../type/type.service';
 
 @Injectable()
 export class ProductsService {
@@ -16,32 +19,41 @@ export class ProductsService {
     private groupRepository: Repository<Group>,
     @InjectRepository(Type)
     private typeRepository: Repository<Type>,
+    @Inject(TypeService)
+    private typeService: TypeService,
   ) {}
 
   async create(product: CreateProductDto, image: any) {
     try {
-      const { group_id, type_id, ...product_data } = product;
-      const grp = await this.findGroup(group_id);
-      const typ = await this.findType(type_id);
-      const prod = {
-        ...product_data,
-        group: grp,
-        type: typ,
-        image_data: image.buffer,
-      };
+      const { type_id, ...product_data } = product;
 
+      const typ = await this.typeService.findType(type_id);
+      if (typ.data instanceof Type) {
+        const prod = {
+          ...product_data,
+          type: typ.data,
+          group: typ.data.group,
+          image_data: image.buffer,
+        };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const prodCreate = await this.productRepository.create(prod);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const { image_data, ...data } = await this.productRepository.save(
+          prodCreate,
+        );
+        return {
+          status: 200,
+          data: { ...data },
+        };
+      }
+      return {
+        status: 400,
+        data: typ.data,
+      };
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const prodCreate = await this.productRepository.create(prod);
-
-      //TODO
-      const { image_data, ...data }: any = await this.productRepository.save(
-        prodCreate,
-      );
-      return {
-        status: 200,
-        data: { ...data },
-      };
     } catch (error) {
       console.log(`[ ${new Date()} ], ERROR: `, error);
       return { status: 400, data: error.sqlMessage };
@@ -59,15 +71,23 @@ export class ProductsService {
 
   async get() {
     try {
-      const arr = [];
-      const products = await this.productRepository.find();
-      console.log(products);
-
-      for await (const { image_data, ...data } of products) {
-        arr.push({ ...data });
-      }
-
-      return arr;
+      return await this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.id',
+          'product.name',
+          'product.tag',
+          'product.presentation_name',
+          'product.art',
+          'product.price',
+          'product.description',
+          'product.image_link',
+          'product.sales',
+          'product.sales_percent',
+        ])
+        .leftJoinAndSelect('product.type', 'type')
+        .leftJoinAndSelect('product.group', 'group')
+        .getMany();
     } catch (err) {
       throw err;
     }
@@ -75,12 +95,24 @@ export class ProductsService {
 
   async getProduct(art: string) {
     try {
-      const { image_data, ...data } = await this.productRepository.findOne({
-        where: {
-          art: art,
-        },
-      });
-      return { ...data };
+      return await this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.id',
+          'product.name',
+          'product.tag',
+          'product.presentation_name',
+          'product.art',
+          'product.price',
+          'product.description',
+          'product.image_link',
+          'product.sales',
+          'product.sales_percent',
+        ])
+        .where('product.art = :art', { art: art })
+        .leftJoinAndSelect('product.type', 'type')
+        .leftJoinAndSelect('product.group', 'group')
+        .getOne();
     } catch (err) {
       throw err;
     }
@@ -115,48 +147,6 @@ export class ProductsService {
     return { ...prod };
   }
 
-  async getCups() {
-    try {
-      return await this.productRepository
-        .createQueryBuilder('product')
-        .select([
-          'product.name',
-          'product.presentation_name',
-          'product.art',
-          'product.price',
-          'product.description',
-          'product.image_link',
-          'product.type',
-          'product.group',
-        ])
-        .where({ group: 'cups' })
-        .getMany();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getMedals() {
-    try {
-      return await this.productRepository
-        .createQueryBuilder('product')
-        .select([
-          'product.name',
-          'product.presentation_name',
-          'product.art',
-          'product.price',
-          'product.description',
-          'product.image_link',
-          'product.type',
-          'product.group',
-        ])
-        .where({ group: 'medals' })
-        .getMany();
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async delete(art: string) {
     try {
       return await this.productRepository.delete({ art: art });
@@ -180,29 +170,73 @@ export class ProductsService {
     }
   }
 
-  async findGroup(id: string) {
-    try {
-      return await this.groupRepository
-        .createQueryBuilder('group')
-        .select(['group.id', 'group.group_name'])
-        .where('group.id = :id', { id: id })
-        .leftJoinAndSelect('group.types', 'type')
-        .getOne();
-    } catch (err) {
-      throw err;
-    }
+  async getAllProductFromGroup(id: string) {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .select([
+        'product.id',
+        'product.name',
+        'product.tag',
+        'product.presentation_name',
+        'product.art',
+        'product.price',
+        'product.description',
+        'product.image_link',
+        'product.sales',
+        'product.sales_percent',
+      ])
+      .where('product.groupId = :groupId', { groupId: id })
+      .leftJoinAndSelect('product.type', 'type')
+      .leftJoinAndSelect('product.group', 'group')
+      .getMany();
   }
 
-  async findType(id: string) {
-    try {
-      return await this.typeRepository
-        .createQueryBuilder('type')
-        .select(['type.type_name', 'type.id'])
-        .where('type.id = :id', { id: id })
-        .leftJoinAndSelect('type.group', 'group')
-        .getOne();
-    } catch (err) {
-      throw err;
-    }
+  async getAllProductFromType(id: string) {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .select([
+        'product.id',
+        'product.name',
+        'product.tag',
+        'product.presentation_name',
+        'product.art',
+        'product.price',
+        'product.description',
+        'product.image_link',
+        'product.sales',
+        'product.sales_percent',
+      ])
+      .where('product.typeId = :typeId', { typeId: id })
+      .leftJoinAndSelect('product.type', 'type')
+      .leftJoinAndSelect('product.group', 'group')
+      .getMany();
   }
+
+  // async findGroup(id: string) {
+  //   try {
+  //     return await this.groupRepository
+  //       .createQueryBuilder('group')
+  //       .select(['group.id', 'group.group_name'])
+  //       .where('group.id = :id', { id: id })
+  //       .leftJoinAndSelect('group.types', 'type')
+  //       .getOne();
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
+  //
+  // async findType(id: string) {
+  //   try {
+  //     const type = await this.typeRepository
+  //       .createQueryBuilder('type')
+  //       .select(['type.type_name', 'type.id'])
+  //       .where('type.id = :id', { id: id })
+  //       .leftJoinAndSelect('type.group', 'group')
+  //       .getOne();
+  //     console.log('test: ', typeof type);
+  //     return type;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 }

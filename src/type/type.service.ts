@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTypeDto } from './dto/create-type.dto';
-import { UpdateTypeDto } from './dto/update-type.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Type } from './entities/type.entity';
 import { Repository } from 'typeorm';
 import { Group } from '../group/entities/group.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class TypeService {
@@ -26,9 +25,12 @@ export class TypeService {
         group: grp,
       });
 
-      return await this.typeRepository.save(type);
+      const newType = await this.typeRepository.save(type);
+
+      return { status: 200, data: newType };
     } catch (err) {
-      throw err;
+      console.error('ERROR', err);
+      return { status: 400, data: err };
     }
   }
 
@@ -44,16 +46,27 @@ export class TypeService {
     }
   }
 
-  async findType(id: string) {
+  async findType(id: string): Promise<{ status: number; data: Type | string }> {
     try {
-      return await this.typeRepository
+      const data = await this.typeRepository
         .createQueryBuilder('type')
         .select(['type.type_name', 'type.id'])
         .where('type.id = :id', { id: id })
         .leftJoinAndSelect('type.group', 'group')
-        .getOne();
+        .getOneOrFail();
+      return { status: 200, data: data };
     } catch (err) {
-      throw err;
+      console.error('ERROR: ', err);
+      return { status: 400, data: err };
     }
+  }
+
+  async delete(id: string) {
+    return await this.typeRepository
+      .createQueryBuilder('type')
+      .delete()
+      .from(Type)
+      .where('id = :id', { id: id })
+      .execute();
   }
 }

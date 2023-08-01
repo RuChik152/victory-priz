@@ -1,12 +1,15 @@
 import {
   BeforeInsert,
   Column,
-  Entity, Generated,
+  Entity,
+  Generated,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as process from 'process';
 import { Group } from '../../group/entities/group.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity()
 export class Type {
@@ -18,4 +21,7 @@ export class Type {
 
   @ManyToOne(() => Group, (group) => group.types)
   group: Group;
+
+  @OneToMany(() => Product, (product) => product.type)
+  products: Product[];
 }

@@ -18,12 +18,20 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiImplicitFile } from '@nestjs/swagger/dist/decorators/api-implicit-file.decorator';
-import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConsumes,
+  ApiResponse,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import * as process from 'process';
+import { CreateGroupDto } from '../group/dto/create-group.dto';
+import { CreateTypeDto } from '../type/dto/create-type.dto';
 
 export type DeleteArrProp = string[];
 
-@ApiTags('products')
+@ApiTags('Product')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -42,24 +50,26 @@ export class ProductsController {
     schema: {
       type: 'object',
       properties: {
-        name: { type: 'string', description: 'Name product' },
+        name: {
+          type: 'string',
+          description: 'Name product',
+          example: 'Name product',
+        },
         presentation_name: {
           type: 'string',
           description: 'Presentations name product',
         },
-        art: { type: 'string', description: 'Item number' },
+        art: {
+          type: 'string',
+          description: 'Item number',
+          example: '3TAS14E485878EE33111',
+        },
         price: { type: 'number', description: 'The cost of the goods' },
         description: { type: 'string', description: 'description product' },
         type: {
-          type: 'string',
-          description: 'Type product',
-          example: 'standard',
+          $ref: getSchemaPath(CreateTypeDto),
         },
-        group: {
-          type: 'string',
-          description: 'Group product',
-          example: 'cups',
-        },
+        group: { $ref: getSchemaPath(CreateGroupDto) },
         image_link: {
           type: 'string',
           description: 'Link for image product',
@@ -73,6 +83,20 @@ export class ProductsController {
         sales_percent: {
           type: 'number',
           description: 'Percent for sales',
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          description: 'Description Error',
+          example:
+            'Could not find any entity of type \\"Group\\" matching: {\\n    \\"id\\": \\"76d0e059-f6d2-4686-b61b-987f6b313472\\"\\n}',
         },
       },
     },
@@ -91,11 +115,80 @@ export class ProductsController {
   }
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Information for new product',
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Name product',
+          example: 'Name product',
+        },
+        presentation_name: {
+          type: 'string',
+          description: 'Presentations name product',
+        },
+        art: {
+          type: 'string',
+          description: 'Item number',
+          example: '3TAS14E485878EE33111',
+        },
+        price: { type: 'number', description: 'The cost of the goods' },
+        description: { type: 'string', description: 'description product' },
+        type: {
+          $ref: getSchemaPath(CreateTypeDto),
+        },
+        group: { $ref: getSchemaPath(CreateGroupDto) },
+        image_link: {
+          type: 'string',
+          description: 'Link for image product',
+          example: `${process.env.HOST}/products/image/3TAS14E485878EE33111`,
+        },
+        id: { type: 'number', description: 'ID product' },
+        sales: {
+          type: 'string',
+          description: 'State for sales, Example: no-sales or sales',
+        },
+        sales_percent: {
+          type: 'number',
+          description: 'Percent for sales',
+        },
+      },
+    },
+  })
   async getProducts() {
     try {
       return await this.productsService.get();
     } catch (err) {
       throw err;
+    }
+  }
+
+  @Get('image/:art')
+  @Header('Content-Type', 'image/png')
+  async getImage(@Param('art') art: string) {
+    console.log('GET IMAGE CONTROLLER: ', art);
+    const file = await this.productsService.getImage(art);
+    return new StreamableFile(file);
+  }
+
+  @Get('group/:id')
+  async getProductToGroup(@Param('id') id: string) {
+    try {
+      return await this.productsService.getAllProductFromGroup(id);
+    } catch (err) {
+      return err;
+    }
+  }
+
+  @Get('type/:id')
+  async getProductToType(@Param('id') id: string) {
+    try {
+      return await this.productsService.getAllProductFromType(id);
+    } catch (err) {
+      return err;
     }
   }
 
@@ -137,14 +230,6 @@ export class ProductsController {
     }
   }
 
-  @Get('image/:art')
-  @Header('Content-Type', 'image/png')
-  async getImage(@Param('art') art: string) {
-    console.log('GET IMAGE CONTROLLER: ', art);
-    const file = await this.productsService.getImage(art);
-    return new StreamableFile(file);
-  }
-
   @Put(':art')
   @UseInterceptors(FileInterceptor('file'))
   async updateProduct(
@@ -154,24 +239,6 @@ export class ProductsController {
   ) {
     console.log('TRANSFORM: ', data);
     return await this.productsService.update(data, file, art);
-  }
-
-  @Get('cups/all')
-  async getCups() {
-    try {
-      return await this.productsService.getCups();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Get('medals/all')
-  async getMedals() {
-    try {
-      return await this.productsService.getMedals();
-    } catch (error) {
-      throw error;
-    }
   }
 
   @Delete(':art')

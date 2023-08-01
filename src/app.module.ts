@@ -12,6 +12,7 @@ import { OrderModule } from './order/order.module';
 import { ProductsModule } from './products/products.module';
 import { GroupModule } from './group/group.module';
 import { TypeModule } from './type/type.module';
+import { ItemsModule } from './items/items.module';
 
 
 
@@ -25,13 +26,14 @@ import { TypeModule } from './type/type.module';
       ...CONNECTION,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/migrations/{.ts,.js}'],
-      synchronize: false, // on production false
+      synchronize: false, // on production false or true for developers
       autoLoadEntities: true,
     }),
     OrderModule,
     ProductsModule,
     GroupModule,
     TypeModule,
+    ItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

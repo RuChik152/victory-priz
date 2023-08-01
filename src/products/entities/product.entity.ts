@@ -2,9 +2,8 @@ import {
   BeforeInsert,
   Column,
   Entity,
-  OneToOne,
   PrimaryGeneratedColumn,
-  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import * as process from 'process';
 import { Group } from '../../group/entities/group.entity';
@@ -17,13 +16,13 @@ export class Product {
     this.image_link = `${process.env.HOST}/products/image/${this.art}`;
   }
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: '#product' })
   tag: string;
 
   @Column({ type: 'varchar' })
@@ -50,11 +49,17 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   sales_percent: number;
 
-  @OneToOne(() => Group)
-  @JoinColumn()
-  group: Group;
+  // @OneToOne(() => Group)
+  // @JoinColumn()
+  // group: Group;
+  //
+  // @OneToOne(() => Type)
+  // @JoinColumn()
+  // type: Type;
 
-  @OneToOne(() => Type)
-  @JoinColumn()
+  @ManyToOne(() => Type, (type) => type.products)
   type: Type;
+
+  @ManyToOne(() => Group, (group) => group.products)
+  group: Group;
 }
