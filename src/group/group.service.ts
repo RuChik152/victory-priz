@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from './entities/group.entity';
 import { Repository } from 'typeorm';
+import { CreateGroupDto } from './dto/create-group.dto';
 
 @Injectable()
 export class GroupService {
@@ -57,5 +58,39 @@ export class GroupService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async delete(id: string) {
+    try {
+      const groupDelete = await this.groupRepository
+        .createQueryBuilder('group')
+        .delete()
+        .from(Group)
+        .where('id = :id', { id: id })
+        .execute();
+      if (groupDelete.affected === 0) {
+        return {
+          status: 404,
+          data: 'Error. Group not Update. Group not found',
+        };
+      }
+      return { status: 200, data: groupDelete };
+    } catch (err) {
+      return { status: 400, data: err.sqlMessage };
+    }
+  }
+
+  async update(data: CreateGroupDto) {
+    const updateGroup = await this.groupRepository
+      .createQueryBuilder('group')
+      .update(Group)
+      .set({ group_name: data.group_name })
+      .where('id = :id', { id: data.id })
+      .execute();
+
+    if (updateGroup.affected === 0) {
+      return { status: 404, data: 'Error. Group not Update. Group not found' };
+    }
+    return { status: 200, data: updateGroup };
   }
 }

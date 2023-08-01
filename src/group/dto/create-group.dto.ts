@@ -11,7 +11,7 @@ export class CreateGroupDto {
   group_name: string;
 
   @ApiProperty({
-    required: false,
+    required: true,
     description: 'ID Group',
     example: 'c8f339c1-bce6-42a3-bad5-2de9414180e2',
   })

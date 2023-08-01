@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  Res,
+  Put,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import {
-  ApiConsumes,
+  ApiBadRequestResponse,
+  ApiConsumes, ApiNotFoundResponse,
   ApiResponse,
   ApiTags,
   getSchemaPath,
@@ -20,7 +23,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Group } from './entities/group.entity';
 import { Type } from '../type/entities/type.entity';
-import {CreateTypeDto} from "../type/dto/create-type.dto";
+import { CreateTypeDto } from '../type/dto/create-type.dto';
+import { Request, Response, NextFunction } from 'express';
 
 @ApiTags('Group')
 @Controller('group')
@@ -169,5 +173,27 @@ export class GroupController {
     } catch (err) {
       throw err;
     }
+  }
+
+  @Delete(':id')
+  @ApiResponse({ status: 200, description: 'Success update data' })
+  @ApiBadRequestResponse({ status: 404, description: 'Error update data' })
+  async deleteGroup(@Param('id') id: string, @Res() res: Response) {
+    const deleted = await this.groupService.delete(id);
+    res.status(deleted.status).send(deleted.data);
+  }
+
+  @Put()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, description: 'Success update data' })
+  @ApiNotFoundResponse({ status: 404, description: 'Error update data' })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: 'You have entered incorrect data',
+  })
+  async updateGroup(@Body() data: CreateGroupDto, @Res() res: Response) {
+    const update = await this.groupService.update(data);
+    res.status(update.status).send(update.data);
   }
 }

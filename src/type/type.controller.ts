@@ -187,7 +187,7 @@ export class TypeController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 200, description: 'Success update data' })
-  @ApiBadRequestResponse({ description: 'Error update data' })
+  @ApiBadRequestResponse({ status: 404, description: 'Error update data' })
   async updateType(@Body() data: UpdateTypeDto, @Res() res: Response) {
     const updateData = await this.typeService.update(data);
     res.status(updateData.status).send(updateData.data);
