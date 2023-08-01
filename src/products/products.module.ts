@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,9 +14,13 @@ import { Type } from '../type/entities/type.entity';
 import { TypeModule } from '../type/type.module';
 
 @Module({
-  imports: [TypeModule, TypeOrmModule.forFeature([Product, Group, Type])],
+  imports: [
+    forwardRef(() => TypeModule),
+    TypeOrmModule.forFeature([Product, Group, Type]),
+  ],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
@@ -19,7 +19,7 @@ export class ProductsService {
     private groupRepository: Repository<Group>,
     @InjectRepository(Type)
     private typeRepository: Repository<Type>,
-    @Inject(TypeService)
+    @Inject(forwardRef(() => TypeService))
     private typeService: TypeService,
   ) {}
 

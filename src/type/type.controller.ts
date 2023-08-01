@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   Res,
+  Put,
 } from '@nestjs/common';
 import { TypeService } from './type.service';
 import { CreateTypeDto } from './dto/create-type.dto';
@@ -25,6 +26,7 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { Type } from './entities/type.entity';
 import { CreateGroupDto } from '../group/dto/create-group.dto';
+import { CreateProductDto } from '../products/dto/create-product.dto';
 
 @ApiTags('Type')
 @Controller('type')
@@ -140,6 +142,8 @@ export class TypeController {
   }
   @Delete(':id')
   @ApiResponse({
+    status: 200,
+    description: 'Информация об удаленных данных',
     schema: {
       type: 'object',
       description: 'Info about  count number deleted "type" object',
@@ -158,7 +162,34 @@ export class TypeController {
       },
     },
   })
-  async deleteTypeProduct(@Param('id') id: string) {
-    return await this.typeService.delete(id);
+  @ApiBadRequestResponse({
+    description: 'Ошибка удаления данных',
+    schema: {
+      type: 'object',
+      properties: {
+        msg: {
+          type: 'string',
+          description: 'ERROR MESSAGE',
+        },
+        products: {
+          type: 'array',
+          items: { $ref: getSchemaPath(CreateProductDto) },
+        },
+      },
+    },
+  })
+  async deleteTypeProduct(@Param('id') id: string, @Res() res: Response) {
+    const deleteType = await this.typeService.delete(id);
+    res.status(deleteType.status).send(deleteType.data);
+  }
+
+  @Put()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, description: 'Success update data' })
+  @ApiBadRequestResponse({ description: 'Error update data' })
+  async updateType(@Body() data: UpdateTypeDto, @Res() res: Response) {
+    const updateData = await this.typeService.update(data);
+    res.status(updateData.status).send(updateData.data);
   }
 }
