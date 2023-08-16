@@ -9,13 +9,17 @@ import {
   UseInterceptors,
   Res,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import {
   ApiBadRequestResponse,
-  ApiConsumes, ApiNotFoundResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiNotFoundResponse,
+
   ApiResponse,
   ApiTags,
   getSchemaPath,
@@ -24,10 +28,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Group } from './entities/group.entity';
 import { Type } from '../type/entities/type.entity';
 import { CreateTypeDto } from '../type/dto/create-type.dto';
-import { Request, Response, NextFunction } from 'express';
+import { Response } from 'express';
+import { GroupGuard } from './group.guard';
 
 @ApiTags('Group')
 @Controller('group')
+@UseGuards(GroupGuard)
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 

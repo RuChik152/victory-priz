@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   Res,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { TypeService } from './type.service';
 import { CreateTypeDto } from './dto/create-type.dto';
@@ -27,9 +28,11 @@ import { Request, Response, NextFunction } from 'express';
 import { Type } from './entities/type.entity';
 import { CreateGroupDto } from '../group/dto/create-group.dto';
 import { CreateProductDto } from '../products/dto/create-product.dto';
+import { TypeGuard } from './type.guard';
 
 @ApiTags('Type')
 @Controller('type')
+@UseGuards(TypeGuard)
 export class TypeController {
   constructor(private readonly typeService: TypeService) {}
 

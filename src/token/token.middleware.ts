@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as process from 'process';
 
-type DecodeType = {
+export type DecodeType = {
   email: string;
   pass: string;
   iat: number;

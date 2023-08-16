@@ -12,7 +12,7 @@ import { OrderModule } from './order/order.module';
 import { ProductsModule } from './products/products.module';
 import { GroupModule } from './group/group.module';
 import { TypeModule } from './type/type.module';
-import { ItemsModule } from './items/items.module';
+
 
 
 
@@ -33,7 +33,6 @@ import { ItemsModule } from './items/items.module';
     ProductsModule,
     GroupModule,
     TypeModule,
-    ItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

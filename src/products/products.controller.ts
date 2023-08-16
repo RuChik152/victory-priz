@@ -10,6 +10,7 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { Response, Express } from 'express';
@@ -28,11 +29,13 @@ import {
 import * as process from 'process';
 import { CreateGroupDto } from '../group/dto/create-group.dto';
 import { CreateTypeDto } from '../type/dto/create-type.dto';
+import { ProductsGuard } from './products.guard';
 
 export type DeleteArrProp = string[];
 
 @ApiTags('Product')
 @Controller('products')
+@UseGuards(ProductsGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

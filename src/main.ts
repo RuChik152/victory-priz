@@ -11,6 +11,7 @@ async function bootstrap() {
     .setTitle('Victory-prize__API')
     .setDescription('API')
     .setVersion('1.0.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
