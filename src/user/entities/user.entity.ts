@@ -2,12 +2,15 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  JoinTable,
 } from 'typeorm';
 import { Order } from './order.entity';
 import * as bcrypt from 'bcrypt';
 import * as uuid from 'uuid';
+import { Usergroup } from './usergroup.entity';
 
 @Entity()
 export class User {
@@ -21,6 +24,9 @@ export class User {
   async createConfirmId() {
     this.confirm_id = uuid.v4();
   }
+
+  @BeforeInsert()
+  async addCustomGroup() {}
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -51,4 +57,7 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @ManyToMany(() => Usergroup, (usergroup) => usergroup.users)
+  usergroups: Usergroup[];
 }

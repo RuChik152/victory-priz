@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as process from 'process';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Usergroup } from '../user/entities/usergroup.entity';
 
 type NewUserType = {
   email: string;
@@ -22,6 +23,9 @@ export class AuthService {
     private mailerService: MailerService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(Usergroup)
+    private usergroupRepository: Repository<Usergroup>,
   ) {}
   async create(dataUser: CreateAuthDto) {
     try {
@@ -37,6 +41,13 @@ export class AuthService {
       );
 
       const user = await this.userRepository.create(createUser);
+      const defaultUserGroup = await this.usergroupRepository
+        .createQueryBuilder('usegroup')
+        .select(['usegroup.id', 'usegroup.name'])
+        .where('id = :id', { id: 'ba7f2bfd-0000-0000-0000-000000000001' })
+        .getOne();
+
+      user.usergroups = [defaultUserGroup];
 
       const { email, id, name, confirm_id } = await this.userRepository.save(
         user,

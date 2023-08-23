@@ -1,7 +1,17 @@
-import { Controller, Get, Body, Param, Delete, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Post,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { CreateUsergroupDto } from './dto/create-usergroup.dto';
+import { UpdateUsergroupDto } from './dto/update-usergroup.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -18,6 +28,17 @@ export class UserController {
     return await this.userService.getAll();
   }
 
+  @Get('group/:id')
+  async getOneUserGroup(@Param() data: UpdateUsergroupDto) {
+    console.log(data)
+    return await this.userService.getOneGroup(data.id);
+  }
+
+  @Get('group')
+  async getUserGroup() {
+    return await this.userService.getAllUserGroup();
+  }
+
   //TODO add class transform
   @Get(':id')
   async getOne(@Param('id') id: string) {
@@ -26,6 +47,15 @@ export class UserController {
     } catch (err) {
       throw err;
     }
+  }
+
+  @Put(':user_id/group/:group_id')
+  async addGroupToUser(
+    @Param('user_id') user_id: string,
+    @Param('group_id') group_id: string,
+  ) {
+    console.log('update', user_id, group_id);
+    return await this.userService.addGroupToUser(Number(user_id), group_id);
   }
 
   @Put(':id')
@@ -67,6 +97,15 @@ export class UserController {
   //   }
   // }
 
+  @ApiParam({
+    name: 'id',
+    description: 'ID user group for deleting',
+  })
+  @Delete('group/:id')
+  async deleteUserGroup(@Param() data: UpdateUsergroupDto) {
+    return await this.userService.deleteUserGroup(data);
+  }
+
   //TODO add class transform
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
@@ -78,5 +117,24 @@ export class UserController {
         error,
       );
     }
+  }
+
+  @ApiParam({
+    name: 'id',
+    description: 'name current user group',
+    type: 'string',
+  })
+  @ApiParam({
+    name: 'newName',
+    description: 'New name for user group',
+  })
+  @Put('group/:id/:newName')
+  async updateUserGroup(@Param() data: UpdateUsergroupDto) {
+    return await this.userService.updateUserGroup(data);
+  }
+
+  @Post('group/:name')
+  async createGroup(@Param() data: CreateUsergroupDto) {
+    return await this.userService.createUserGroup(data);
   }
 }
