@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
@@ -8,6 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import * as process from 'process';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Usergroup } from '../user/entities/usergroup.entity';
+import { UserService } from '../user/user.service';
 
 type NewUserType = {
   email: string;
@@ -26,6 +27,9 @@ export class AuthService {
 
     @InjectRepository(Usergroup)
     private usergroupRepository: Repository<Usergroup>,
+
+    @Inject(UserService)
+    private userService: UserService,
   ) {}
   async create(dataUser: CreateAuthDto) {
     try {
@@ -76,16 +80,41 @@ export class AuthService {
 
   async auth(dataUser: CreateAuthDto) {
     try {
-      const user = await this.userRepository.findOne({
-        where: {
-          email: dataUser.email,
-        },
-      });
+      // const user = await this.userRepository.findOne({
+      //   where: {
+      //     email: dataUser.email,
+      //   },
+      // });
+      // console.log('data1', user);
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .select([
+          'user.id',
+          'user.email',
+          'user.name',
+          'user.pass',
+          'user.auth_status',
+          'user.confirmation',
+          'user.confirm_id',
+          'user.accessToken',
+          'user.refreshToken',
+        ])
+        .leftJoinAndSelect('user.usergroups', 'usergroups')
+        .where('user.email = :email', { email: dataUser.email })
+        .getOne();
 
       if (user) {
         const pass = await bcrypt.compare(dataUser.pass, user.pass);
         if (pass) {
           if (user.confirmation) {
+            const usergroupToken = jwt.sign(
+              {
+                usergroup: user.usergroups,
+              },
+              process.env.JWT_CONSTANT_CRYPT,
+              { expiresIn: process.env.JWT_LIFETIME_REFRESH_TOKEN },
+            );
+
             const refresh_Token = jwt.sign(
               { email: user.email },
               process.env.JWT_CONSTANT_REFRESH_TOKEN,
@@ -93,7 +122,9 @@ export class AuthService {
             );
             const access_Token = jwt.sign(
               {
+                id: user.id,
                 email: user.email,
+                usergroup: usergroupToken,
                 refreshToken: refresh_Token,
               },
               process.env.JWT_CONSTANT_ACCESS_TOKEN,
@@ -122,7 +153,7 @@ export class AuthService {
         return { status: 404, msg: 'Account not found' };
       }
     } catch (err) {
-      console.log(`[${new Date().toJSON()}] ERROR AuthService Create: `, err);
+      console.log(`[${new Date().toJSON()}] ERROR AuthService Auth: `, err);
       throw err;
     }
   }

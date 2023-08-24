@@ -32,11 +32,6 @@ export class UserService {
 
   async get(user_id: number): Promise<User> {
     try {
-      // return await this.usersRepository.findOneOrFail({
-      //   where: {
-      //     id,
-      //   },
-      // });
       return await this.usersRepository
         .createQueryBuilder('user')
         .select(['user.id', 'user.email', 'user.name'])

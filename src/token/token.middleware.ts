@@ -27,7 +27,9 @@ export function TokenMiddleware(
         //TODO
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const { refreshToken } = jwt.decode(req.body.accessToken);
+        const { refreshToken, usergroup, id } = jwt.decode(
+          req.body.accessToken,
+        );
         console.log('DECODE TOKEN: ', refreshToken);
         if (typeof refreshToken === 'string') {
           jwt.verify(
@@ -39,8 +41,10 @@ export function TokenMiddleware(
                 res.status(403).send('Access denied');
               } else {
                 console.log('SUCCESS REFRESH TOKEN: ', decoded);
+                req.body.id = id;
                 req.body.refreshToken = refreshToken;
                 req.body.email = decoded.email;
+                req.body.usergroup = usergroup;
                 next();
               }
             },

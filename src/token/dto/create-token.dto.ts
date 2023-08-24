@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTokenDto {
@@ -16,4 +16,11 @@ export class CreateTokenDto {
   @IsOptional()
   @IsString()
   email: string;
+
+  @IsOptional()
+  usergroup: any;
+
+  @IsOptional()
+  @IsNumber()
+  id: number;
 }

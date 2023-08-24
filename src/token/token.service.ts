@@ -13,8 +13,27 @@ export class TokenService {
   ) {}
   async verify(tokens: CreateTokenDto) {
     try {
+      const userGroupDecrypt = jwt.verify(
+        tokens.usergroup,
+        process.env.JWT_CONSTANT_CRYPT,
+      );
+      console.log('USERGROUP DECRYPT: ', userGroupDecrypt);
+
+      const userGroupCrypt = jwt.sign(
+        {
+          usergroup: userGroupDecrypt,
+        },
+        process.env.JWT_CONSTANT_CRYPT,
+        { expiresIn: process.env.JWT_LIFETIME_REFRESH_TOKEN },
+      );
+
       const access_Token = jwt.sign(
-        { email: tokens.email, refreshToken: tokens.refreshToken },
+        {
+          id: tokens.id,
+          email: tokens.email,
+          usergroup: userGroupCrypt,
+          refreshToken: tokens.refreshToken,
+        },
         process.env.JWT_CONSTANT_ACCESS_TOKEN,
         { expiresIn: process.env.JWT_LIFETIME_ACCESS_TOKEN },
       );

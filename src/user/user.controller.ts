@@ -6,22 +6,19 @@ import {
   Delete,
   Put,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateUsergroupDto } from './dto/create-usergroup.dto';
 import { UpdateUsergroupDto } from './dto/update-usergroup.dto';
+import { UserGuard } from './user.guard';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  // @Get()
-  // async createUserDB(@Body() dataUser: CreateUserDto) {
-  //   return await this.userService.createUser(dataUser);
-  // }
 
   @Get()
   async getAllUsers() {
@@ -30,7 +27,7 @@ export class UserController {
 
   @Get('group/:id')
   async getOneUserGroup(@Param() data: UpdateUsergroupDto) {
-    console.log(data)
+    console.log(data);
     return await this.userService.getOneGroup(data.id);
   }
 
@@ -49,6 +46,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(UserGuard)
   @Put(':user_id/group/:group_id')
   async addGroupToUser(
     @Param('user_id') user_id: string,
@@ -63,44 +61,11 @@ export class UserController {
     return await this.userService.update(Number(id), userData);
   }
 
-  // @Get('order')
-  // async createOrderDb() {
-  //   return await this.userService.createOrder();
-  // }
-
-  // @Get('join')
-  // async getJoinOrder() {
-  //   return await this.userService.getJoinOrder();
-  // }
-
-  // @Get(':email')
-  // async getUserInfo(@Param('email') email: CreateUserDto) {
-  //   try {
-  //     return await this.userService.get(email);
-  //   } catch (error) {
-  //     console.log(
-  //       `[${new Date().toJSON()}] ERROR UserController GetUserInfo: `,
-  //       error,
-  //     );
-  //   }
-  // }
-
-  // @Put()
-  // async updateUser(@Body() dataUser: CreateUserDto) {
-  //   try {
-  //     return await this.userService.update(dataUser);
-  //   } catch (error) {
-  //     console.log(
-  //       `[${new Date().toJSON()}] ERROR UserController GetUserInfo: `,
-  //       error,
-  //     );
-  //   }
-  // }
-
   @ApiParam({
     name: 'id',
     description: 'ID user group for deleting',
   })
+  @UseGuards(UserGuard)
   @Delete('group/:id')
   async deleteUserGroup(@Param() data: UpdateUsergroupDto) {
     return await this.userService.deleteUserGroup(data);
@@ -108,6 +73,7 @@ export class UserController {
 
   //TODO add class transform
   @Delete(':id')
+  @UseGuards(UserGuard)
   async deleteUser(@Param('id') id: string) {
     try {
       return await this.userService.delete(Number(id));
@@ -128,6 +94,7 @@ export class UserController {
     name: 'newName',
     description: 'New name for user group',
   })
+  @UseGuards(UserGuard)
   @Put('group/:id/:newName')
   async updateUserGroup(@Param() data: UpdateUsergroupDto) {
     return await this.userService.updateUserGroup(data);

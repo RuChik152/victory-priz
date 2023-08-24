@@ -13,10 +13,12 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AuthMiddleware } from './auth.middleware';
 import * as process from 'process';
-import {Usergroup} from "../user/entities/usergroup.entity";
+import { Usergroup } from '../user/entities/usergroup.entity';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forFeature([User, Usergroup]),
     MailerModule.forRootAsync({
       useFactory: async () => ({
